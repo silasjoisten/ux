@@ -1,5 +1,8 @@
 <?php
 
+
+declare(strict_types=1);
+
 /*
  * This file is part of the Symfony package.
  *
@@ -8,8 +11,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-declare(strict_types=1);
 
 namespace Symfony\UX\LiveComponent\Form\Type;
 
@@ -31,7 +32,7 @@ final class MultiStepType extends AbstractType
     {
         $resolver
             ->setDefault('current_step_name', static function (Options $options): string {
-                return \array_key_first($options['steps']);
+                return array_key_first($options['steps']);
             })
             ->setRequired('steps');
     }
@@ -44,6 +45,6 @@ final class MultiStepType extends AbstractType
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         $view->vars['current_step_name'] = $options['current_step_name'];
-        $view->vars['steps_names'] = \array_keys($options['steps']);
+        $view->vars['steps_names'] = array_keys($options['steps']);
     }
 }

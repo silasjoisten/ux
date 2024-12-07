@@ -20,6 +20,7 @@ use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\Storage\StorageInterface;
 use Symfony\UX\TwigComponent\Attribute\ExposeInTemplate;
 use Symfony\UX\TwigComponent\Attribute\PostMount;
+
 use function Symfony\Component\String\u;
 
 /**
@@ -29,8 +30,8 @@ use function Symfony\Component\String\u;
  */
 trait ComponentWithMultiStepFormTrait
 {
-    use DefaultActionTrait;
     use ComponentWithFormTrait;
+    use DefaultActionTrait;
 
     #[LiveProp]
     public ?string $currentStepName = null;
@@ -49,19 +50,19 @@ trait ComponentWithMultiStepFormTrait
     /**
      * @internal
      *
-     * Must be executed after ComponentWithFormTrait::initializeForm().
+     * Must be executed after ComponentWithFormTrait::initializeForm()
      */
     #[PostMount(priority: -250)]
     public function initialize(): void
     {
         $this->currentStepName = $this->getStorage()->get(
-            sprintf('%s_current_step_name', self::prefix()),
+            \sprintf('%s_current_step_name', self::prefix()),
             $this->formView->vars['current_step_name'],
         );
 
         $this->form = $this->instantiateForm();
 
-        $formData = $this->getStorage()->get(sprintf(
+        $formData = $this->getStorage()->get(\sprintf(
             '%s_form_values_%s',
             self::prefix(),
             $this->currentStepName,
@@ -91,7 +92,7 @@ trait ComponentWithMultiStepFormTrait
         }
 
         $this->getStorage()->persist(
-            sprintf('%s_form_values_%s', self::prefix(), $this->currentStepName),
+            \sprintf('%s_form_values_%s', self::prefix(), $this->currentStepName),
             $this->form->getData(),
         );
 
@@ -117,13 +118,13 @@ trait ComponentWithMultiStepFormTrait
         }
 
         $this->currentStepName = $next;
-        $this->getStorage()->persist(sprintf('%s_current_step_name', self::prefix()), $this->currentStepName);
+        $this->getStorage()->persist(\sprintf('%s_current_step_name', self::prefix()), $this->currentStepName);
 
         // If we have a next step, we need to resinstantiate the form and reset the form view and values.
         $this->form = $this->instantiateForm();
         $this->formView = null;
 
-        $formData = $this->getStorage()->get(sprintf(
+        $formData = $this->getStorage()->get(\sprintf(
             '%s_form_values_%s',
             self::prefix(),
             $this->currentStepName,
@@ -165,12 +166,12 @@ trait ComponentWithMultiStepFormTrait
         }
 
         $this->currentStepName = $previous;
-        $this->getStorage()->persist(sprintf('%s_current_step_name', self::prefix()), $this->currentStepName);
+        $this->getStorage()->persist(\sprintf('%s_current_step_name', self::prefix()), $this->currentStepName);
 
         $this->form = $this->instantiateForm();
         $this->formView = null;
 
-        $formData = $this->getStorage()->get(sprintf(
+        $formData = $this->getStorage()->get(\sprintf(
             '%s_form_values_%s',
             self::prefix(),
             $this->currentStepName,
@@ -202,7 +203,7 @@ trait ComponentWithMultiStepFormTrait
         }
 
         $this->getStorage()->persist(
-            sprintf('%s_form_values_%s', self::prefix(), $this->currentStepName),
+            \sprintf('%s_form_values_%s', self::prefix(), $this->currentStepName),
             $this->form->getData(),
         );
 
@@ -219,7 +220,7 @@ trait ComponentWithMultiStepFormTrait
         $data = [];
 
         foreach ($this->stepNames as $stepName) {
-            $data[$stepName] = $this->getStorage()->get(sprintf(
+            $data[$stepName] = $this->getStorage()->get(\sprintf(
                 '%s_form_values_%s',
                 self::prefix(),
                 $stepName,
@@ -232,12 +233,12 @@ trait ComponentWithMultiStepFormTrait
     public function resetForm(): void
     {
         foreach ($this->stepNames as $stepName) {
-            $this->getStorage()->remove(sprintf('%s_form_values_%s', self::prefix(), $stepName));
+            $this->getStorage()->remove(\sprintf('%s_form_values_%s', self::prefix(), $stepName));
         }
 
-        $this->getStorage()->remove(sprintf('%s_current_step_name', self::prefix()));
+        $this->getStorage()->remove(\sprintf('%s_current_step_name', self::prefix()));
 
-        $this->currentStepName = $this->stepNames[\array_key_first($this->stepNames)];
+        $this->currentStepName = $this->stepNames[array_key_first($this->stepNames)];
         $this->form = $this->instantiateForm();
         $this->formView = null;
         $this->formValues = $this->extractFormValues($this->getFormView());

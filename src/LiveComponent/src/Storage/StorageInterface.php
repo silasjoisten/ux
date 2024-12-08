@@ -33,8 +33,8 @@ interface StorageInterface
      * This method is used to save the state of a component or any other
      * relevant data that needs to persist across requests or interactions.
      *
-     * @param string $key   The unique identifier for the data to store.
-     * @param mixed  $values The value to be stored.
+     * @param string $key    the unique identifier for the data to store
+     * @param mixed  $values the value to be stored
      */
     public function persist(string $key, mixed $values): void;
 
@@ -44,7 +44,7 @@ interface StorageInterface
      * This method is useful for cleaning up data that is no longer needed,
      * such as resetting a form or clearing cached values.
      *
-     * @param string $key The unique identifier for the data to remove.
+     * @param string $key the unique identifier for the data to remove
      */
     public function remove(string $key): void;
 
@@ -55,11 +55,11 @@ interface StorageInterface
      * a default value instead. This is commonly used to fetch saved state or
      * configuration for a component.
      *
-     * @param string $key     The unique identifier for the data to retrieve.
+     * @param string $key     the unique identifier for the data to retrieve
      * @param mixed  $default The default value to return if the key is not found.
      *                        Defaults to an empty array.
      *
-     * @return mixed The value associated with the specified key or the default value.
+     * @return mixed the value associated with the specified key or the default value
      */
     public function get(string $key, mixed $default = []): mixed;
 }

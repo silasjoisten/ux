@@ -188,7 +188,7 @@ trait ComponentWithMultiStepFormTrait
     /**
      * Checks if the current step is the first step.
      *
-     * @return bool True if the current step is the first; false otherwise.
+     * @return bool true if the current step is the first; false otherwise
      */
     #[ExposeInTemplate]
     public function isFirst(): bool
@@ -199,7 +199,7 @@ trait ComponentWithMultiStepFormTrait
     /**
      * Checks if the current step is the last step.
      *
-     * @return bool True if the current step is the last; false otherwise.
+     * @return bool true if the current step is the last; false otherwise
      */
     #[ExposeInTemplate]
     public function isLast(): bool
@@ -232,7 +232,7 @@ trait ComponentWithMultiStepFormTrait
     /**
      * Retrieves all data from all steps.
      *
-     * @return array<string, mixed> An associative array of step names and their data.
+     * @return array<string, mixed> an associative array of step names and their data
      */
     public function getAllData(): array
     {
@@ -265,30 +265,30 @@ trait ComponentWithMultiStepFormTrait
     /**
      * Abstract method to retrieve the storage implementation.
      *
-     * @return StorageInterface The storage instance.
+     * @return StorageInterface the storage instance
      */
     abstract protected function getStorage(): StorageInterface;
 
     /**
      * Abstract method to specify the form class for the component.
      *
-     * @return class-string<FormInterface> The form class name.
+     * @return class-string<FormInterface> the form class name
      */
     abstract protected static function formClass(): string;
 
     /**
      * Abstract method to retrieve the form factory instance.
      *
-     * @return FormFactoryInterface The form factory.
+     * @return FormFactoryInterface the form factory
      */
     abstract protected function getFormFactory(): FormFactoryInterface;
 
     /**
      * @internal
      *
-     * Instantiates the form for the current step.
+     * Instantiates the form for the current step
      *
-     * @return FormInterface The form instance.
+     * @return FormInterface the form instance
      */
     protected function instantiateForm(): FormInterface
     {
@@ -304,9 +304,9 @@ trait ComponentWithMultiStepFormTrait
     /**
      * @internal
      *
-     * Generates a unique prefix based on the component's class name.
+     * Generates a unique prefix based on the component's class name
      *
-     * @return string The generated prefix in snake case.
+     * @return string the generated prefix in snake case
      */
     private static function prefix(): string
     {

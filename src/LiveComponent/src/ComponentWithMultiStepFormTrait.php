@@ -24,9 +24,16 @@ use Symfony\UX\TwigComponent\Attribute\PostMount;
 use function Symfony\Component\String\u;
 
 /**
+ * Trait for managing multistep forms in Symfony UX LiveComponent.
+ *
+ * This trait simplifies the implementation of multistep forms by handling
+ * step transitions, form validation, data persistence, and state management.
+ * It provides a structured API for developers to integrate multistep forms
+ * into their components with minimal boilerplate.
+ *
  * @author Silas Joisten <silasjoisten@proton.me>
  * @author Patrick Reimers <preimers@pm.me>
- * @author Jules Pietri <jules@heahprod.com>
+ * @author Jules Pietri <heahdude@yahoo.fr>
  */
 trait ComponentWithMultiStepFormTrait
 {
@@ -42,6 +49,9 @@ trait ComponentWithMultiStepFormTrait
     #[LiveProp]
     public array $stepNames = [];
 
+    /**
+     * Checks if the current form has validation errors.
+     */
     public function hasValidationErrors(): bool
     {
         return $this->form->isSubmitted() && !$this->form->isValid();
@@ -50,31 +60,24 @@ trait ComponentWithMultiStepFormTrait
     /**
      * @internal
      *
-     * Must be executed after ComponentWithFormTrait::initializeForm()
+     * Initializes the form and restores the state from storage.
+     *
+     * This method must be executed after `ComponentWithFormTrait::initializeForm()`.
      */
     #[PostMount(priority: -250)]
     public function initialize(): void
     {
-        $this->currentStepName = $this->getStorage()->get(
-            \sprintf('%s_current_step_name', self::prefix()),
-            $this->formView->vars['current_step_name'],
-        );
+        $this->currentStepName = $this->getStorage()->get(\sprintf('%s_current_step_name', self::prefix()), $this->formView->vars['current_step_name']);
 
         $this->form = $this->instantiateForm();
 
-        $formData = $this->getStorage()->get(\sprintf(
-            '%s_form_values_%s',
-            self::prefix(),
-            $this->currentStepName,
-        ));
+        $formData = $this->getStorage()->get(\sprintf('%s_form_values_%s', self::prefix(), $this->currentStepName));
 
         $this->form->setData($formData);
 
-        if ([] === $formData) {
-            $this->formValues = $this->extractFormValues($this->getFormView());
-        } else {
-            $this->formValues = $formData;
-        }
+        $this->formValues = [] === $formData
+            ? $this->extractFormValues($this->getFormView())
+            : $formData;
 
         $this->stepNames = $this->formView->vars['steps_names'];
 
@@ -82,6 +85,12 @@ trait ComponentWithMultiStepFormTrait
         $this->formView = null;
     }
 
+    /**
+     * Advances to the next step in the form.
+     *
+     * Validates the current step, saves its data, and moves to the next step.
+     * Throws a RuntimeException if no next step is available.
+     */
     #[LiveAction]
     public function next(): void
     {
@@ -91,10 +100,7 @@ trait ComponentWithMultiStepFormTrait
             return;
         }
 
-        $this->getStorage()->persist(
-            \sprintf('%s_form_values_%s', self::prefix(), $this->currentStepName),
-            $this->form->getData(),
-        );
+        $this->getStorage()->persist(\sprintf('%s_form_values_%s', self::prefix(), $this->currentStepName), $this->form->getData());
 
         $found = false;
         $next = null;
@@ -124,23 +130,21 @@ trait ComponentWithMultiStepFormTrait
         $this->form = $this->instantiateForm();
         $this->formView = null;
 
-        $formData = $this->getStorage()->get(\sprintf(
-            '%s_form_values_%s',
-            self::prefix(),
-            $this->currentStepName,
-        ));
+        $formData = $this->getStorage()->get(\sprintf('%s_form_values_%s', self::prefix(), $this->currentStepName));
 
-        // I really don't understand why we need to do that. But what I understood is extractFormValues creates
-        // an array of initial values.
-        if ([] === $formData) {
-            $this->formValues = $this->extractFormValues($this->getFormView());
-        } else {
-            $this->formValues = $formData;
-        }
+        $this->formValues = [] === $formData
+            ? $this->extractFormValues($this->getFormView())
+            : $formData;
 
         $this->form->setData($formData);
     }
 
+    /**
+     * Moves to the previous step in the form.
+     *
+     * Retrieves the previous step's data and updates the form state.
+     * Throws a RuntimeException if no previous step is available.
+     */
     #[LiveAction]
     public function previous(): void
     {
@@ -181,18 +185,31 @@ trait ComponentWithMultiStepFormTrait
         $this->form->setData($formData);
     }
 
+    /**
+     * Checks if the current step is the first step.
+     *
+     * @return bool True if the current step is the first; false otherwise.
+     */
     #[ExposeInTemplate]
     public function isFirst(): bool
     {
         return $this->currentStepName === $this->stepNames[array_key_first($this->stepNames)];
     }
 
+    /**
+     * Checks if the current step is the last step.
+     *
+     * @return bool True if the current step is the last; false otherwise.
+     */
     #[ExposeInTemplate]
     public function isLast(): bool
     {
         return $this->currentStepName === $this->stepNames[array_key_last($this->stepNames)];
     }
 
+    /**
+     * Submits the form and triggers the `onSubmit` callback if valid.
+     */
     #[LiveAction]
     public function submit(): void
     {
@@ -202,34 +219,35 @@ trait ComponentWithMultiStepFormTrait
             return;
         }
 
-        $this->getStorage()->persist(
-            \sprintf('%s_form_values_%s', self::prefix(), $this->currentStepName),
-            $this->form->getData(),
-        );
+        $this->getStorage()->persist(\sprintf('%s_form_values_%s', self::prefix(), $this->currentStepName), $this->form->getData());
 
         $this->onSubmit();
     }
 
+    /**
+     * Abstract method to be implemented by the component for custom submission logic.
+     */
     abstract public function onSubmit();
 
     /**
-     * @return array<string, mixed>
+     * Retrieves all data from all steps.
+     *
+     * @return array<string, mixed> An associative array of step names and their data.
      */
     public function getAllData(): array
     {
         $data = [];
 
         foreach ($this->stepNames as $stepName) {
-            $data[$stepName] = $this->getStorage()->get(\sprintf(
-                '%s_form_values_%s',
-                self::prefix(),
-                $stepName,
-            ));
+            $data[$stepName] = $this->getStorage()->get(\sprintf('%s_form_values_%s', self::prefix(), $stepName));
         }
 
         return $data;
     }
 
+    /**
+     * Resets the form, clearing all stored data and returning to the first step.
+     */
     public function resetForm(): void
     {
         foreach ($this->stepNames as $stepName) {
@@ -244,17 +262,33 @@ trait ComponentWithMultiStepFormTrait
         $this->formValues = $this->extractFormValues($this->getFormView());
     }
 
+    /**
+     * Abstract method to retrieve the storage implementation.
+     *
+     * @return StorageInterface The storage instance.
+     */
     abstract protected function getStorage(): StorageInterface;
 
     /**
-     * @return class-string<FormInterface>
+     * Abstract method to specify the form class for the component.
+     *
+     * @return class-string<FormInterface> The form class name.
      */
     abstract protected static function formClass(): string;
 
+    /**
+     * Abstract method to retrieve the form factory instance.
+     *
+     * @return FormFactoryInterface The form factory.
+     */
     abstract protected function getFormFactory(): FormFactoryInterface;
 
     /**
      * @internal
+     *
+     * Instantiates the form for the current step.
+     *
+     * @return FormInterface The form instance.
      */
     protected function instantiateForm(): FormInterface
     {
@@ -264,20 +298,18 @@ trait ComponentWithMultiStepFormTrait
             $options['current_step_name'] = $this->currentStepName;
         }
 
-        return $this->getFormFactory()->create(
-            type: static::formClass(),
-            options: $options,
-        );
+        return $this->getFormFactory()->create(static::formClass(), null, $options);
     }
 
     /**
      * @internal
+     *
+     * Generates a unique prefix based on the component's class name.
+     *
+     * @return string The generated prefix in snake case.
      */
     private static function prefix(): string
     {
-        return u(static::class)
-            ->afterLast('\\')
-            ->snake()
-            ->toString();
+        return u(static::class)->afterLast('\\')->snake()->toString();
     }
 }

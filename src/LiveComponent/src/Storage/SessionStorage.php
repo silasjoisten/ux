@@ -16,9 +16,19 @@ namespace Symfony\UX\LiveComponent\Storage;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
+ * Implementation of the StorageInterface using Symfony's session mechanism.
+ *
+ * This class provides a session-based storage solution for managing data
+ * persistence in Symfony UX LiveComponent. It leverages the Symfony
+ * `RequestStack` to access the session and perform operations such as
+ * storing, retrieving, and removing data.
+ *
+ * Common use cases include persisting component state, such as form data
+ * or multistep workflow progress, across user interactions.
+ *
  * @author Silas Joisten <silasjoisten@proton.me>
  * @author Patrick Reimers <preimers@pm.me>
- * @author Jules Pietri <jules@heahprod.com>
+ * @author Jules Pietri <heahdude@yahoo.fr>
  */
 final class SessionStorage implements StorageInterface
 {

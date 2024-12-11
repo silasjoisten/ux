@@ -25,10 +25,8 @@ use function Symfony\Component\String\u;
 /**
  * Trait for managing multi-step forms in LiveComponent.
  *
- * This trait simplifies the implementation of multistep forms by handling
+ * This trait simplifies the implementation of multi-step forms by handling
  * step transitions, form validation, data persistence, and state management.
- * It provides a structured API for developers to integrate multistep forms
- * into their components with minimal boilerplate.
  *
  * @author Silas Joisten <silasjoisten@proton.me>
  * @author Patrick Reimers <preimers@pm.me>

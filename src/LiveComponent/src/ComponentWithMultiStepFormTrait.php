@@ -23,7 +23,7 @@ use Symfony\UX\TwigComponent\Attribute\PostMount;
 use function Symfony\Component\String\u;
 
 /**
- * Trait for managing multistep forms in Symfony UX LiveComponent.
+ * Trait for managing multi-step forms in LiveComponent.
  *
  * This trait simplifies the implementation of multistep forms by handling
  * step transitions, form validation, data persistence, and state management.
